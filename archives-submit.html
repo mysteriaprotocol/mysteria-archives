@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SUBMIT DATA — ARCHIVE UPLINK</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #020308;
+      --text-main: #eaeaea;
+      --text-muted: #9d9d9d;
+      --accent: #f55;
+      --accent2: #0ff;
+      --border-soft: rgba(255,255,255,0.12);
+      --card-radius: 16px;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 0%, #19192a 0%, #020308 55%, #000 100%);
+      color: var(--text-main);
+      font-family: "Courier New", monospace;
+      min-height: 100vh;
+      padding: 40px 20px 30px;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Scanlines */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05) 0px,
+        rgba(255,255,255,0.05) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      opacity: 0.14;
+      z-index: 2;
+    }
+
+    /* Noise */
+    .noise {
+      position: fixed;
+      inset: -160px;
+      opacity: 0.25;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+      animation: drift 30s linear infinite;
+      z-index: 0;
+    }
+    @keyframes drift {
+      from { transform: translate3d(0,0,0); }
+      to   { transform: translate3d(-160px,-160px,0); }
+    }
+
+    /* Glitch shards */
+    .glitch-sprite {
+      position: fixed;
+      width: 18px;
+      height: 8px;
+      background: linear-gradient(90deg, #f55, #0ff);
+      opacity: 0.2;
+      mix-blend-mode: screen;
+      animation: floatShard 6s infinite linear;
+      z-index: 1;
+      filter: blur(2px);
+    }
+
+    @keyframes floatShard {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.15; }
+      25% { opacity: 0.3; }
+      50% { transform: translateY(-60px) translateX(40px) rotate(20deg); opacity: 0.15; }
+      100% { transform: translateY(-120px) translateX(80px) rotate(-10deg); opacity: 0; }
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 18px;
+      background: rgba(12,12,20,0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      z-index: 9999;
+      display: flex;
+      gap: 8px;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .crumb { color: #eee; }
+    .current { color: #f88; }
+    .sep { color: #666; }
+
+    /* Audio toggle */
+    .audio-toggle {
+      position: fixed;
+      top: 46px;
+      right: 18px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      opacity: 0.9;
+    }
+    .slider-bg {
+      width: 38px;
+      height: 12px;
+      background: #222;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+    }
+    .slider-knob {
+      width: 14px;
+      height: 14px;
+      background: #555;
+      border-radius: 50%;
+      position: absolute;
+      top: -1px;
+      left: 0;
+      transition: 0.25s;
+    }
+    .audio-toggle.active .slider-knob {
+      left: 22px;
+      background: #f55;
+      box-shadow: 0 0 10px #f55;
+    }
+    .audio-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+    }
+
+    /* Shell */
+    .shell {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 70px;
+      padding: 40px 28px 32px;
+      border-radius: 24px;
+      background: linear-gradient(to bottom right, #090912, #05050b);
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 0 40px rgba(0,0,0,0.7),
+        inset 0 0 20px rgba(255,255,255,0.03);
+    }
+
+    .title {
+      font-size: 1.6rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(245,85,85,0.55),
+                   0 0 20px rgba(0,255,255,0.35);
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 26px;
+      letter-spacing: 0.18em;
+    }
+
+    /* Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .submit-card {
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 22px 20px;
+      background: linear-gradient(to bottom right, #0b0b15, #060612);
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.04);
+      transition: 0.2s ease;
+    }
+
+    .submit-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(245,85,85,0.45);
+      transform: translateY(-3px);
+    }
+
+    .submit-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .submit-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Back link */
+    .back-link {
+      display: block;
+      margin-top: 28px;
+      text-align: center;
+      color: var(--text-main);
+      opacity: 0.75;
+      font-size: 0.86rem;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      opacity: 1;
+      text-decoration: underline dotted;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar">
+    <span class="crumb">MYSTERIA ARCHIVES</span>
+    <span class="sep">&gt;</span>
+    <span class="crumb">SUBMIT</span>
+    <span class="sep">&gt;</span>
+    <span class="crumb current">DATA</span>
+  </div>
+
+  <!-- Audio toggle -->
+  <div class="audio-toggle">
+    <div class="slider-bg"><div class="slider-knob"></div></div>
+    <span class="audio-label">AUDIO</span>
+  </div>
+
+  <div class="noise"></div>
+  <div class="glitch-sprite" style="left:18%; top:77%; animation-delay:0s;"></div>
+  <div class="glitch-sprite" style="left:72%; top:58%; animation-delay:1.4s;"></div>
+
+  <main class="shell">
+
+    <div class="title">Submit Data</div>
+    <div class="sub">Thank you to every dedicated player who helps restore the Archives</div>
+
+    <section class="grid">
+
+      <!-- CARD 01 -->
+      <div class="submit-card">
+        <div class="submit-title">Discord Submission</div>
+        <p class="submit-text">
+          Join the official Mysteria Discord server and submit findings in the correct channels:<br><br>
+          <strong>https://discord.gg/wr4umA8s</strong>
+        </p>
+      </div>
+
+      <!-- CARD 02 -->
+      <div class="submit-card">
+        <div class="submit-title">Email Evidence</div>
+        <p class="submit-text">
+          Screenshots, decoded runes, puzzle breakthroughs and theories may be sent directly to:<br><br>
+          <strong>mysteriaprotocol@gmail.com</strong>
+        </p>
+      </div>
+
+    </section>
+
+    <a href="mysteria-archives.html" class="back-link">← Back to Archives Hub</a>
+
+  </main>
+
+  <script>
+    (function() {
+      const toggle = document.querySelector(".audio-toggle");
+      if (!toggle) return;
+      let enabled = false;
+      let player = null;
+
+      toggle.addEventListener("click", () => {
+        enabled = !enabled;
+        toggle.classList.toggle("active", enabled);
+        if (enabled) {
+          if (!player) {
+            player = new Audio("audio/mysteria_ambience_01.mp3");
+            player.loop = true;
+            player.volume = 0.25;
+          }
+          player.play().catch(() => {});
+        } else {
+          if (player) player.pause();
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

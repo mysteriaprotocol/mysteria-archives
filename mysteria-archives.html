@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MYSTERIA ARCHIVES — HUB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #020308;
+      --text-main: #eaeaea;
+      --text-muted: #9d9d9d;
+      --accent: #f55;
+      --accent2: #0ff;
+      --border-soft: rgba(255,255,255,0.12);
+      --card-radius: 16px;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 0%, #181828 0%, #020308 55%, #000 100%);
+      color: var(--text-main);
+      font-family: "Courier New", monospace;
+      min-height: 100vh;
+      padding: 40px 20px 30px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Scanlines */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05) 0px,
+        rgba(255,255,255,0.05) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      opacity: 0.14;
+      z-index: 2;
+    }
+
+    /* Noise */
+    .noise {
+      position: fixed;
+      inset: -140px;
+      opacity: 0.25;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+      animation: drift 30s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes drift {
+      from { transform: translate3d(0,0,0); }
+      to   { transform: translate3d(-150px,-150px,0); }
+    }
+
+    /* Glitch shards */
+    .glitch-sprite {
+      position: fixed;
+      width: 18px;
+      height: 8px;
+      background: linear-gradient(90deg, #f55, #0ff);
+      opacity: 0.2;
+      mix-blend-mode: screen;
+      animation: floatShard 6s infinite linear;
+      z-index: 1;
+      filter: blur(2px);
+    }
+
+    @keyframes floatShard {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.15; }
+      25% { opacity: 0.3; }
+      50% { transform: translateY(-60px) translateX(40px) rotate(20deg); opacity: 0.15; }
+      100% { transform: translateY(-120px) translateX(80px) rotate(-10deg); opacity: 0; }
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 18px;
+      background: rgba(12, 12, 20, 0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      z-index: 9999;
+      display: flex;
+      gap: 8px;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .breadcrumb-bar .crumb { color: #eee; }
+    .breadcrumb-bar .current { color: #f88; }
+    .breadcrumb-bar .sep { color: #666; }
+
+    /* Audio toggle */
+    .audio-toggle {
+      position: fixed;
+      top: 46px;
+      right: 18px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      opacity: 0.9;
+    }
+    .audio-toggle .audio-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: #ddd;
+    }
+    .slider-bg {
+      width: 38px;
+      height: 12px;
+      background: #222;
+      border-radius: 20px;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.2);
+      overflow: hidden;
+    }
+    .slider-knob {
+      width: 14px;
+      height: 14px;
+      background: #555;
+      border-radius: 50%;
+      position: absolute;
+      top: -1px;
+      left: 0;
+      transition: 0.25s;
+    }
+    .audio-toggle.active .slider-knob {
+      left: 22px;
+      background: #f55;
+      box-shadow: 0 0 10px #f55;
+    }
+
+    /* Shell */
+    .shell {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 70px;
+      padding: 32px 26px 26px;
+      border-radius: 22px;
+      background: linear-gradient(to bottom right, #07070f, #03030a);
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 0 32px rgba(0,0,0,0.8),
+        inset 0 0 20px rgba(255,255,255,0.03);
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -60px;
+      background: linear-gradient(150deg,
+        rgba(245, 85, 85, 0.12),
+        transparent 40%,
+        rgba(0,255,200,0.16),
+        transparent 80%
+      );
+      opacity: 0;
+      animation: sweep 11s infinite linear;
+      pointer-events: none;
+    }
+
+    @keyframes sweep {
+      0%, 25% { opacity: 0; transform: translateX(-45%); }
+      45%     { opacity: 1; }
+      100%    { opacity: 0; transform: translateX(45%); }
+    }
+
+    .title {
+      font-size: 1.6rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 8px;
+      text-shadow: 0 0 10px rgba(245,85,85,0.55),
+                   0 0 18px rgba(0,255,255,0.35);
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      letter-spacing: 0.18em;
+      margin-bottom: 24px;
+    }
+
+    .intro {
+      font-size: 0.82rem;
+      color: #d0d0d0;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 18px;
+    }
+
+    .hub-card {
+      position: relative;
+      display: block;
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 16px 14px 16px;
+      border-radius: var(--card-radius);
+      background: linear-gradient(to bottom right, #090912, #05050b);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.04);
+      transition: 0.18s ease;
+    }
+
+    .hub-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(245,85,85,0.55);
+      transform: translateY(-3px);
+    }
+
+    .hub-label {
+      font-size: 0.72rem;
+      color: #f99;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .hub-title {
+      font-size: 0.96rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 8px;
+    }
+
+    .hub-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* LOCKED NODE */
+    .hub-locked {
+      position: relative;
+      overflow: hidden;
+      opacity: 0.55;
+      cursor: default;
+      pointer-events: none;
+      border: 1px solid rgba(255,0,80,0.3);
+      box-shadow: inset 0 0 14px rgba(255,0,80,0.2);
+    }
+
+    .lock-icon {
+      display: inline-block;
+      width: 12px;
+      height: 14px;
+      border: 2px solid #f55;
+      border-radius: 3px;
+      position: relative;
+      margin-left: 6px;
+      box-shadow: 0 0 6px rgba(255,80,80,0.7);
+    }
+
+    .lock-icon::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 1px;
+      width: 8px;
+      height: 10px;
+      border: 2px solid #f55;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      box-shadow: 0 0 6px rgba(255,80,80,0.7);
+    }
+
+    .locked-title {
+      color: #f55;
+      text-shadow: 0 0 6px rgba(255,50,50,0.7);
+      animation: lockedGlitch 2.4s infinite;
+      position: relative;
+    }
+
+    @keyframes lockedGlitch {
+      0% { transform: none; opacity: 1; }
+      35% { transform: skewX(4deg); opacity: 0.7; }
+      36% { transform: skewX(-4deg); opacity: 1; }
+      37% { transform: none; }
+      80% { opacity: 1; }
+      81% { opacity: 0.6; transform: translateX(2px); }
+      82% { opacity: 1; transform: translateX(0); }
+      100% { opacity: 1; }
+    }
+
+    .locked-desc {
+      color: #ffbdbd;
+      opacity: 0.7;
+      animation: descFlicker 5s infinite steps(20);
+    }
+
+    @keyframes descFlicker {
+      0%, 20%, 22%, 30%, 35%, 40%, 100% { opacity: 0.7; }
+      21%, 31%, 36%, 41% { opacity: 0.3; }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="breadcrumb-bar">
+    <span class="crumb">MYSTERIA ARCHIVES</span>
+    <span class="sep">&gt;</span>
+    <span class="crumb">HUB</span>
+    <span class="sep">&gt;</span>
+    <span class="crumb current">INDEX</span>
+  </div>
+
+  <div class="audio-toggle">
+    <div class="slider-bg">
+      <div class="slider-knob"></div>
+    </div>
+    <span class="audio-label">AUDIO</span>
+  </div>
+
+  <div class="noise"></div>
+  <div class="glitch-sprite" style="left:12%; top:78%; animation-delay:0s;"></div>
+  <div class="glitch-sprite" style="left:70%; top:60%; animation-delay:1.3s;"></div>
+
+  <main class="shell">
+    <div class="title">MYSTERIA ARCHIVES</div>
+    <div class="sub">Central Hub for Recovered Knowledge</div>
+
+    <p class="intro">
+      This hub is the entry point into every confirmed fragment of knowledge inside Mysteria.
+      Each node below leads to a dedicated archive page focused on one aspect of the investigation.
+    </p>
+
+    <section class="grid">
+
+      <!-- NODE 01: Pictures & Locations -->
+      <a class="hub-card" href="archives-pictures.html">
+        <div class="hub-label">NODE 01</div>
+        <div class="hub-title">Pictures and Locations</div>
+        <div class="hub-desc">
+          An overview of critical locations and images discovered by the players.
+        </div>
+      </a>
+
+      <!-- NODE 02: Mysta Alphabet -->
+      <a class="hub-card" href="archives-runes.html">
+        <div class="hub-label">NODE 02</div>
+        <div class="hub-title">Mysta Alphabet</div>
+        <div class="hub-desc">
+          Central reference of all confirmed Mysta symbols and their translations.
+        </div>
+      </a>
+
+      <!-- NODE 03: Recovered Lore -->
+      <a class="hub-card" href="archives-artifacts.html">
+        <div class="hub-label">NODE 03</div>
+        <div class="hub-title">Recovered Lore</div>
+        <div class="hub-desc">
+          Dossier-style access to diary fragments, lifestyle notes and forbidden records.
+        </div>
+      </a>
+
+      <!-- NODE 04: Puzzle Activity -->
+      <a class="hub-card" href="archives-puzzles.html">
+        <div class="hub-label">NODE 04</div>
+        <div class="hub-title">Puzzle Activity</div>
+        <div class="hub-desc">
+          Logged puzzle sites, solutions and cryptic manifestations.
+        </div>
+      </a>
+
+      <!-- NODE 05: Hall of Fame -->
+      <a class="hub-card" href="archives-halloffame.html">
+        <div class="hub-label">NODE 05</div>
+        <div class="hub-title">Player Hall of Fame</div>
+        <div class="hub-desc">
+          Curated record of community leaders that pushed the story forward.
+        </div>
+      </a>
+
+      <!-- NODE 06: Submit Data -->
+      <a class="hub-card" href="archives-submit.html">
+        <div class="hub-label">NODE 06</div>
+        <div class="hub-title">Submit Data</div>
+        <div class="hub-desc">
+          Instructions and contact routes to send new evidence, codes and theories.
+        </div>
+      </a>
+
+      <!-- NODE 07 — LOCKED TIMELINE -->
+      <div class="hub-card hub-locked">
+        <div class="hub-label">NODE 07</div>
+        <div class="hub-title locked-title">
+          TIMELINE <span class="lock-icon"></span>
+        </div>
+        <div class="hub-desc locked-desc">
+          ACCESS DENIED — Fragment sealed<br>
+          Pending future revelation
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    // Simple audio toggle logic (page-local)
+    (function() {
+      const toggle = document.querySelector(".audio-toggle");
+      if (!toggle) return;
+      let enabled = false;
+      let player = null;
+
+      toggle.addEventListener("click", () => {
+        enabled = !enabled;
+        toggle.classList.toggle("active", enabled);
+
+        if (enabled) {
+          if (!player) {
+            player = new Audio("audio/mysteria_ambience_01.mp3");
+            player.loop = true;
+            player.volume = 0.25;
+          }
+          player.play().catch(() => {});
+        } else {
+          if (player) player.pause();
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

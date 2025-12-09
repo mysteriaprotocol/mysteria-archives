@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MYSTERIA ARCHIVES — PICTURES & LOCATIONS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #020308;
+      --text-main: #eaeaea;
+      --text-muted: #9d9d9d;
+      --accent: #f55;
+      --accent2: #0ff;
+      --border-soft: rgba(255,255,255,0.12);
+      --card-radius: 16px;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 0%, #181828 0%, #020308 55%, #000 100%);
+      color: var(--text-main);
+      font-family: "Courier New", monospace;
+      min-height: 100vh;
+      padding: 40px 20px 30px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Scanlines */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05) 0px,
+        rgba(255,255,255,0.05) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      opacity: 0.14;
+      z-index: 2;
+    }
+
+    /* Noise */
+    .noise {
+      position: fixed;
+      inset: -140px;
+      opacity: 0.25;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+      animation: drift 30s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes drift {
+      from { transform: translate3d(0,0,0); }
+      to   { transform: translate3d(-150px,-150px,0); }
+    }
+
+    /* Glitch sprites */
+    .glitch-sprite {
+      position: fixed;
+      width: 18px;
+      height: 8px;
+      background: linear-gradient(90deg, #f55, #0ff);
+      opacity: 0.2;
+      mix-blend-mode: screen;
+      animation: floatShard 6s infinite linear;
+      z-index: 1;
+      filter: blur(2px);
+    }
+
+    @keyframes floatShard {
+      0% { transform: translateY(0) translateX(0); opacity: 0.15; }
+      50% { transform: translateY(-60px) translateX(40px); opacity: 0.2; }
+      100% { transform: translateY(-120px) translateX(80px); opacity: 0; }
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 10px 18px;
+      background: rgba(12, 12, 20, 0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      z-index: 9999;
+      display: flex;
+      gap: 8px;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .crumb { color: #eee; }
+    .current { color: #f88; }
+    .sep { color: #666; }
+
+    /* Audio toggle */
+    .audio-toggle {
+      position: fixed;
+      top: 46px; right: 18px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      opacity: 0.9;
+    }
+    .audio-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: #ddd;
+    }
+    .slider-bg {
+      width: 38px; height: 12px;
+      background: #222;
+      border-radius: 20px;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .slider-knob {
+      width: 14px; height: 14px;
+      background: #555;
+      border-radius: 50%;
+      position: absolute;
+      top: -1px; left: 0;
+      transition: 0.25s;
+    }
+    .audio-toggle.active .slider-knob {
+      left: 22px;
+      background: #f55;
+      box-shadow: 0 0 10px #f55;
+    }
+
+    /* Shell */
+    .shell {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 70px;
+      padding: 32px 26px 26px;
+      border-radius: 22px;
+      background: linear-gradient(to bottom right, #07070f, #03030a);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 0 32px rgba(0,0,0,0.8),
+                  inset 0 0 20px rgba(255,255,255,0.03);
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -60px;
+      background: linear-gradient(150deg,
+        rgba(245,85,85,0.12),
+        transparent 40%,
+        rgba(0,255,200,0.16),
+        transparent 80%
+      );
+      opacity: 0;
+      animation: sweep 11s infinite linear;
+    }
+    @keyframes sweep {
+      45% { opacity: 1; }
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      text-shadow: 0 0 10px rgba(245,85,85,0.55),
+                   0 0 18px rgba(0,255,255,0.35);
+    }
+
+    .progress-pill {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,255,200,0.6);
+      color: #aaffee;
+    }
+
+    .sub {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      letter-spacing: 0.16em;
+      margin-bottom: 18px;
+    }
+
+    .intro {
+      font-size: 0.82rem;
+      color: #d0d0d0;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #aaa;
+      text-decoration: none;
+      margin-bottom: 14px;
+    }
+    .back-link::before {
+      content: "<";
+      color: #f88;
+    }
+
+    /* Layout */
+    .content-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    /* Caseboard */
+    .caseboard {
+      border-radius: 14px;
+      padding: 16px;
+      background: linear-gradient(to bottom right, #090912, #06060c);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.04);
+    }
+
+    .case-title {
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .case-txt {
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: #d8d8d8;
+    }
+
+    .hint-line {
+      margin-top: 14px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="breadcrumb-bar">
+    <span class="crumb">MYSTERIA ARCHIVES</span>
+    <span class="sep">&gt;</span>
+    <span class="crumb">NODE 01</span>
+    <span class="sep">&gt;</span>
+    <span class="crumb current">PICTURES &amp; LOCATIONS</span>
+  </div>
+
+  <div class="audio-toggle">
+    <div class="slider-bg"><div class="slider-knob"></div></div>
+    <span class="audio-label">AUDIO</span>
+  </div>
+
+  <div class="noise"></div>
+  <div class="glitch-sprite" style="left:15%; top:80%; animation-delay:0s;"></div>
+  <div class="glitch-sprite" style="left:70%; top:55%; animation-delay:1.4s;"></div>
+
+  <main class="shell">
+    <a href="mysteria-archives.html" class="back-link">Back to hub</a>
+
+    <div class="title-row">
+      <div class="title">PICTURES &amp; LOCATIONS</div>
+      <div class="progress-pill">LOGGED: 0 / ?</div>
+    </div>
+
+    <div class="sub">All visual evidence starts here</div>
+
+    <p class="intro">
+      This node begins empty. Players must uncover every location themselves.
+      Screenshots, angles, silhouettes — all of it matters.
+    </p>
+
+    <section class="content-layout">
+      <div class="caseboard">
+        <div class="case-title">ARCHIVE INITIALISED</div>
+        <div class="case-txt">
+          No confirmed locations yet. Once players identify a place that repeats
+          across episodes or clues, it will be logged here.
+        </div>
+        <p class="hint-line">
+          Hint: the first real location usually hides in plain sight.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function() {
+      const toggle = document.querySelector(".audio-toggle");
+      let enabled = false;
+      let player = null;
+
+      toggle.addEventListener("click", () => {
+        enabled = !enabled;
+        toggle.classList.toggle("active", enabled);
+
+        if (enabled) {
+          if (!player) {
+            player = new Audio("audio/mysteria_ambience_01.mp3");
+            player.loop = true;
+            player.volume = 0.25;
+          }
+          player.play().catch(() => {});
+        } else {
+          if (player) player.pause();
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

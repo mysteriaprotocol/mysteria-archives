@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>MYSTA DIARY — RECONSTRUCTED FILES</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+/* ---- Reset + Variables ---- */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#020308;
+  --text-main:#eaeaea;
+  --text-muted:#9d9d9d;
+  --accent:#f55;
+  --accent2:#0ff;
+  --border-soft:rgba(255,255,255,0.12);
+}
+
+/* ---- Background + Noise ---- */
+body{
+  background:radial-gradient(circle at 20% 0%,#1b1b2c 0%,#020308 55%,#000 100%);
+  color:var(--text-main);
+  font-family:"Courier New",monospace;
+  min-height:100vh;
+  padding:40px 20px 30px;
+  display:flex;justify-content:center;
+  overflow-x:hidden;position:relative;
+}
+
+body::before{
+  content:"";position:fixed;inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(to bottom,
+    rgba(255,255,255,0.05)0px,
+    rgba(255,255,255,0.05)1px,
+    transparent1px,transparent3px
+  );
+  opacity:0.14;z-index:2;
+}
+
+.noise{
+  position:fixed;inset:-140px;
+  opacity:0.23;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  animation:drift 30s linear infinite;z-index:0;
+}
+
+@keyframes drift{from{transform:translate3d(0,0,0);}to{transform:translate3d(-160px,-160px,0);}}
+
+/* ---- Glitch Fragments ---- */
+.glitch-sprite{
+  position:fixed;width:18px;height:8px;
+  background:linear-gradient(90deg,#f55,#0ff);
+  opacity:.2;mix-blend-mode:screen;
+  animation:floatShard6s infinite linear;
+  z-index:1;filter:blur(2px);
+}
+
+@keyframes floatShard{
+  0%{transform:translateY(0)translateX(0);opacity:.15;}
+  50%{transform:translateY(-60px)translateX(40px);opacity:.25;}
+  100%{transform:translateY(-120px)translateX(80px);opacity:0;}
+}
+
+/* ---- Breadcrumb ---- */
+.breadcrumb-bar{
+  position:fixed;top:0;left:0;right:0;
+  padding:10px 18px;
+  background:rgba(12,12,20,0.75);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid rgba(255,255,255,0.12);
+  z-index:9999;
+  display:flex;gap:8px;
+  font-size:.75rem;letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.crumb{color:#eee;}
+.current{color:#f88;}
+.sep{color:#666;}
+
+/* ---- Audio Toggle ---- */
+.audio-toggle{
+  position:fixed;top:46px;right:18px;
+  z-index:10000;display:flex;align-items:center;
+  gap:6px;cursor:pointer;opacity:.9;
+}
+
+.slider-bg{
+  width:38px;height:12px;background:#222;
+  border-radius:20px;border:1px solid rgba(255,255,255,0.2);
+  position:relative;
+}
+.slider-knob{
+  width:14px;height:14px;background:#555;
+  border-radius:50%;position:absolute;
+  top:-1px;left:0;transition:.25s;
+}
+.audio-toggle.active .slider-knob{
+  left:22px;background:#f55;box-shadow:0 0 10px #f55;
+}
+
+.audio-label{
+  font-size:.7rem;color:#ddd;letter-spacing:.15em;
+}
+
+/* ---- Shell ---- */
+.shell{
+  position:relative;z-index:5;
+  width:100%;max-width:1100px;
+  margin-top:70px;padding:40px 30px 30px;
+  border-radius:24px;
+  background:linear-gradient(to bottom right,#090912,#05050b);
+  border:1px solid var(--border-soft);
+  box-shadow:0 0 40px rgba(0,0,0,.7),
+             inset 0 0 20px rgba(255,255,255,.03);
+}
+
+.shell::before{
+  content:"";position:absolute;inset:-40px;
+  background:linear-gradient(160deg,
+    rgba(245,85,85,0.13),transparent35%,
+    rgba(0,255,200,0.18),transparent80%
+  );
+  animation:sweepGlow10s infinite linear;
+  opacity:0;pointer-events:none;
+}
+@keyframes sweepGlow{45%{opacity:1;}}
+
+/* ---- Titles ---- */
+.title{
+  text-align:center;font-size:1.4rem;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:#fff;margin-bottom:10px;
+}
+.sub{
+  text-align:center;font-size:.85rem;
+  letter-spacing:.16em;color:var(--text-muted);
+  margin-bottom:24px;text-transform:uppercase;
+}
+
+/* ---- Lore Box ---- */
+.lore-box{
+  border-radius:16px;padding:20px;
+  background:linear-gradient(to bottom right,#0b0b15,#060612);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:inset 0 0 14px rgba(255,255,255,0.05);
+}
+
+.lore-title{
+  font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.18em;margin-bottom:10px;color:#fdd;
+}
+.lore-text{
+  font-size:.82rem;color:#d8d8d8;line-height:1.45;
+}
+.hint{
+  margin-top:14px;font-size:.72rem;
+  color:var(--text-muted);line-height:1.4;
+}
+
+/* ---- Back Link ---- */
+.back-link{
+  display:block;margin-top:26px;text-align:center;
+  font-size:.84rem;color:var(--text-main);
+  text-decoration:none;opacity:.75;
+}
+.back-link:hover{opacity:1;text-decoration:underline dotted;}
+
+</style>
+</head>
+
+<body>
+
+<div class="breadcrumb-bar">
+  <span class="crumb">MYSTERIA ARCHIVES</span>
+  <span class="sep">&gt;</span>
+  <span class="crumb">LORE</span>
+  <span class="sep">&gt;</span>
+  <span class="crumb current">MYSTA DIARY</span>
+</div>
+
+<div class="audio-toggle">
+  <div class="slider-bg"><div class="slider-knob"></div></div>
+  <span class="audio-label">AUDIO</span>
+</div>
+
+<div class="noise"></div>
+<div class="glitch-sprite" style="left:18%;top:78%;animation-delay:0s;"></div>
+<div class="glitch-sprite" style="left:72%;top:60%;animation-delay:1.6s;"></div>
+
+<main class="shell">
+
+<div class="title">Mysta Diary</div>
+<div class="sub">Recovered Pages — Status: 0 / 10</div>
+
+<section class="lore-box">
+  <div class="lore-title">ARCHIVE INITIALISED</div>
+  <div class="lore-text">
+    No diary fragments decoded yet. Once a page becomes verifiable, it will appear here in order.
+  </div>
+  <div class="hint">
+    Early fragments often hide behind symbols, timestamps or disrupted audio.
+  </div>
+</section>
+
+<a href="archives-artifacts.html" class="back-link">← Back to Recovered Lore Index</a>
+
+</main>
+
+<script>
+(function(){
+  const t=document.querySelector(".audio-toggle");
+  if(!t)return;let e=false,p=null;
+  t.addEventListener("click",()=>{
+    e=!e;t.classList.toggle("active",e);
+    if(e){
+      if(!p){
+        p=new Audio("audio/mysteria_ambience_01.mp3");
+        p.loop=true;p.volume=0.25;
+      }
+      p.play().catch(()=>{});
+    }else{if(p)p.pause();}
+  });
+})();
+</script>
+
+</body>
+</html>
